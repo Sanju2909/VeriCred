@@ -77,9 +77,8 @@ By leveraging **W3C Verifiable Credentials standards**, **asymmetric cryptograph
   - [x] Stage 3A: Backend Foundation, MongoDB Schemas, JWT Auth & RBAC (20 passing tests)
   - [x] Stage 3B: W3C Verifiable Credentials Signing, RFC 8785 Hashing & Smart Contract Service (40 passing tests)
 - [ ] **Stage 4: Frontend Development (React + Vite)**
-  - Role-specific portals (Admin, Issuer, Student, Verifier)
-  - Interactive credential designer and batch issuance
-  - Student wallet and QR code sharing
+  - [x] Stage 4A: React 18 + Vite Scaffolding, Design System, Role Dashboards & API Client (Vite build successful)
+  - [ ] Stage 4B: Interactive QR Camera Scanner, Batch Issuance & Export Enhancements
 - [ ] **Stage 5: End-to-End Verification Pipeline**
   - QR code scanning and direct JSON credential upload
   - Multi-step cryptographic and on-chain verification workflow
