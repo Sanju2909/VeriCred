@@ -73,9 +73,9 @@ By leveraging **W3C Verifiable Credentials standards**, **asymmetric cryptograph
   - `CredentialRegistry.sol` (Credential hash anchoring, expiration, & revocation)
   - Comprehensive unit test suite with 100% contract coverage (29 passing tests)
   - Local deployment scripts
-- [ ] **Stage 3: Backend API & Cryptographic Engine (Node.js + Express + MongoDB)**
+- [x] **Stage 3: Backend API & Cryptographic Engine (Node.js + Express + MongoDB)**
   - [x] Stage 3A: Backend Foundation, MongoDB Schemas, JWT Auth & RBAC (20 passing tests)
-  - [ ] Stage 3B: W3C Verifiable Credentials Signing, Merkle/Hash Engine & Smart Contract Service
+  - [x] Stage 3B: W3C Verifiable Credentials Signing, RFC 8785 Hashing & Smart Contract Service (40 passing tests)
 - [ ] **Stage 4: Frontend Development (React + Vite)**
   - Role-specific portals (Admin, Issuer, Student, Verifier)
   - Interactive credential designer and batch issuance

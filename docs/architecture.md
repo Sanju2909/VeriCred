@@ -25,7 +25,14 @@ The platform addresses credential fraud and verification friction by combining:
 (Verifies Issuer Status & Revocation)
 ```
 
-### 4. Smart Contract Architecture (Solidity `^0.8.24`)
+### 4. Cryptographic Engine & Canonicalization (RFC 8785)
+- **Deterministic Serialization**: Implements **RFC 8785 (JSON Canonicalization Scheme - JCS)** ensuring consistent key ordering and token serialization across JavaScript runtimes.
+- **Digital Signing**: ECDSA on curve `secp256k1` (`EcdsaSecp256k1Signature2019`). Signatures are bound to the issuer's public Ethereum address.
+- **Integrity Fingerprints**:
+  - **SHA-256**: NIST-standard digest for off-chain verification.
+  - **Keccak-256**: EVM-standard `bytes32` digest for smart contract on-chain anchoring.
+
+### 5. Smart Contract Architecture (Solidity `^0.8.24`)
 - **`IIssuerRegistry` & `IssuerRegistry.sol`**:
   - Maintains institutional identities, DIDs, approval status, and admin governance.
   - Public interface `isIssuerApproved(address)` enables dynamic authorization checks.
@@ -39,6 +46,6 @@ The platform addresses credential fraud and verification friction by combining:
     - `4`: `CREDENTIAL_EXPIRED`
     - `5`: `ISSUER_SUSPENDED`
 
-### 5. Privacy & Data Minimization Principle
+### 6. Privacy & Data Minimization Principle
 - **No PII on-chain**: Names, grades, roll numbers, or personal identifying attributes are **never** committed to Ethereum transactions or smart contract storage.
-- **Deterministic Fingerprints**: Only cryptographic hashes (SHA-256 / Keccak-256) of canonical JSON credential objects are anchored.
+- **Deterministic Fingerprints**: Only cryptographic hashes of canonical JSON credential objects are anchored on-chain.
