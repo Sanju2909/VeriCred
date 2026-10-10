@@ -54,3 +54,4 @@ function canonicalize(object) {
 }
 
 module.exports = { canonicalize };
+

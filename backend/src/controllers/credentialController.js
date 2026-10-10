@@ -119,3 +119,4 @@ class CredentialController {
 }
 
 module.exports = new CredentialController();
+

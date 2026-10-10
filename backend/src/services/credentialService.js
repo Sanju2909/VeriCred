@@ -397,3 +397,4 @@ class CredentialService {
 }
 
 module.exports = new CredentialService();
+

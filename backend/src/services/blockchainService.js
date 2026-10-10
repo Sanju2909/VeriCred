@@ -260,3 +260,4 @@ class BlockchainService {
 }
 
 module.exports = new BlockchainService();
+
