@@ -74,9 +74,8 @@ By leveraging **W3C Verifiable Credentials standards**, **asymmetric cryptograph
   - Comprehensive unit test suite with 100% contract coverage (29 passing tests)
   - Local deployment scripts
 - [ ] **Stage 3: Backend API & Cryptographic Engine (Node.js + Express + MongoDB)**
-  - Secure authentication with JWT and Role-Based Access Control
-  - Cryptographic credential generation and signing service
-  - Integration with smart contracts via `ethers.js`
+  - [x] Stage 3A: Backend Foundation, MongoDB Schemas, JWT Auth & RBAC (20 passing tests)
+  - [ ] Stage 3B: W3C Verifiable Credentials Signing, Merkle/Hash Engine & Smart Contract Service
 - [ ] **Stage 4: Frontend Development (React + Vite)**
   - Role-specific portals (Admin, Issuer, Student, Verifier)
   - Interactive credential designer and batch issuance
