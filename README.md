@@ -68,10 +68,10 @@ By leveraging **W3C Verifiable Credentials standards**, **asymmetric cryptograph
   - Git repository initialization and `.gitignore` setup
   - Project directory structure (`frontend`, `backend`, `blockchain`, `docs`)
   - Configuration templates (`.env.example`) and architectural documentation
-- [ ] **Stage 2: Smart Contract Implementation & Testing (Solidity + Hardhat)**
+- [x] **Stage 2: Smart Contract Implementation & Testing (Solidity + Hardhat)**
   - `IssuerRegistry.sol` (Authority registration & revocation)
   - `CredentialRegistry.sol` (Credential hash anchoring, expiration, & revocation)
-  - Comprehensive unit test suite with 100% contract coverage
+  - Comprehensive unit test suite with 100% contract coverage (29 passing tests)
   - Local deployment scripts
 - [ ] **Stage 3: Backend API & Cryptographic Engine (Node.js + Express + MongoDB)**
   - Secure authentication with JWT and Role-Based Access Control

@@ -25,3 +25,20 @@ The platform addresses credential fraud and verification friction by combining:
 (Verifies Issuer Status & Revocation)
 ```
 
+### 4. Smart Contract Architecture (Solidity `^0.8.24`)
+- **`IIssuerRegistry` & `IssuerRegistry.sol`**:
+  - Maintains institutional identities, DIDs, approval status, and admin governance.
+  - Public interface `isIssuerApproved(address)` enables dynamic authorization checks.
+- **`CredentialRegistry.sol`**:
+  - Anchors `bytes32 credentialHash`, issuance/expiration timestamps, and revocation state.
+  - Multi-tier verification via `verifyCredential(bytes32 credentialId, bytes32 expectedHash)`:
+    - `0`: `VALID`
+    - `1`: `CREDENTIAL_NOT_FOUND`
+    - `2`: `HASH_MISMATCH`
+    - `3`: `CREDENTIAL_REVOKED`
+    - `4`: `CREDENTIAL_EXPIRED`
+    - `5`: `ISSUER_SUSPENDED`
+
+### 5. Privacy & Data Minimization Principle
+- **No PII on-chain**: Names, grades, roll numbers, or personal identifying attributes are **never** committed to Ethereum transactions or smart contract storage.
+- **Deterministic Fingerprints**: Only cryptographic hashes (SHA-256 / Keccak-256) of canonical JSON credential objects are anchored.
