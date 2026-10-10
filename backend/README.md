@@ -111,3 +111,4 @@ npm.cmd test
 | `GET` | `/api/users` | Admin Only | List users with pagination and role filter |
 | `GET` | `/api/users/:id` | Admin / Self | Get detailed user profile |
 | `PATCH`| `/api/users/:id/role` | Admin Only | Update user role |
+

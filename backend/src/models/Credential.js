@@ -154,3 +154,4 @@ module.exports = {
   Credential,
   CREDENTIAL_STATUS,
 };
+

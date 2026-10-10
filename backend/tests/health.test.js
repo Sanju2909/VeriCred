@@ -36,3 +36,4 @@ describe("Backend Foundation & Health API", function () {
     expect(res.body.error).to.have.property("code", "INVALID_JSON_BODY");
   });
 });
+

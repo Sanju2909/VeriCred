@@ -73,3 +73,4 @@ module.exports = {
   AuditEvent,
   AUDIT_EVENT_TYPES,
 };
+

@@ -24,3 +24,4 @@ router.get("/:id", userController.getUserById);
 router.patch("/:id/role", authorizeRoles(ROLES.ADMIN), userController.updateUserRole);
 
 module.exports = router;
+
