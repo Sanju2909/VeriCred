@@ -269,3 +269,4 @@ contract CredentialRegistry {
         return true;
     }
 }
+

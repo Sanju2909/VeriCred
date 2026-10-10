@@ -197,3 +197,4 @@ contract IssuerRegistry is IIssuerRegistry {
         return _issuerAddresses;
     }
 }
+

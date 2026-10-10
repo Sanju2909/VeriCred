@@ -520,3 +520,4 @@ describe("Decentralized Credential Platform Smart Contracts", function () {
     });
   });
 });
+

@@ -88,3 +88,4 @@ Output example:
    - The security of an issuer depends entirely on keeping their private key secure off-chain. If an issuer key is compromised, the platform admin can invoke `suspendIssuer()` to immediately invalidate future and existing verifications from that compromised address.
 3. **Private Data Privacy**:
    - All blockchain transactions are public. Never anchor raw student transcripts or plaintext metadata to the smart contracts.
+
