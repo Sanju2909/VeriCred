@@ -46,6 +46,7 @@ export function StudentVault() {
       type: cred.credentialType,
       issuer: {
         id: cred.issuerDid,
+        name: (cred.issuerProfileId && cred.issuerProfileId.institutionName) || "State University of Technology",
         ethereumAddress: cred.issuerAddress,
       },
       issuanceDate: cred.issuanceDate,
@@ -256,3 +257,4 @@ export function StudentVault() {
 }
 
 export default StudentVault;
+

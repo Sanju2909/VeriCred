@@ -86,3 +86,4 @@ Configuration is loaded from `frontend/.env` (or `.env.example`):
 
 - **Client-side Non-tampering**: Role checks in `ProtectedRoute.jsx` manage navigation and view visibility, while every data mutation and query is enforced cryptographically and at the database level by the Express backend.
 - **Zero Key Exposure**: Private signing keys are never loaded into frontend bundles, `localStorage`, or browser session state.
+

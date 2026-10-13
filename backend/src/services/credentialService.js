@@ -6,6 +6,7 @@ const { AuditEvent } = require("../models/AuditEvent");
 const cryptoService = require("./cryptoService");
 const blockchainService = require("./blockchainService");
 const keyManagerService = require("./keyManagerService");
+const environment = require("../config/environment");
 const logger = require("../utils/logger");
 
 class CredentialService {
@@ -210,7 +211,7 @@ class CredentialService {
   async getCredentialById(id, user) {
     const record = await Credential.findOne({
       $or: [{ credentialId: id }, { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }],
-    });
+    }).populate("issuerProfileId");
 
     if (!record) {
       const error = new Error("Credential not found");
@@ -219,12 +220,13 @@ class CredentialService {
       throw error;
     }
 
-    // Access control: ADMIN, issuing ISSUER, or recipient HOLDER
-    const isIssuer = record.issuerId.toString() === user.id;
-    const isHolder = (record.holderId && record.holderId.toString() === user.id) || (record.holderEmail === user.email.toLowerCase());
-    const isAdmin = user.role === ROLES.ADMIN;
+    // Access control: ADMIN, issuing ISSUER, recipient HOLDER, or ANONYMOUS/public verification
+    const isIssuer = user && user.id && record.issuerId.toString() === user.id.toString();
+    const isHolder = user && ((record.holderId && user.id && record.holderId.toString() === user.id.toString()) || (record.holderEmail && user.email && record.holderEmail === user.email.toLowerCase()));
+    const isAdmin = user && user.role === ROLES.ADMIN;
+    const isPublic = !user || user.role === "ANONYMOUS" || !user.role;
 
-    if (!isAdmin && !isIssuer && !isHolder) {
+    if (!isAdmin && !isIssuer && !isHolder && !isPublic) {
       const error = new Error("Access denied. You do not have permission to view this credential.");
       error.statusCode = 403;
       error.errorCode = "FORBIDDEN";
@@ -235,16 +237,53 @@ class CredentialService {
   }
 
   /**
+   * Shared helper to construct standardized, consistent verification result objects.
+   */
+  _buildVerificationResult({
+    isValid,
+    status,
+    message,
+    checks,
+    recoveredSigner,
+    credentialPayload,
+  }) {
+    return {
+      isValid: Boolean(isValid),
+      status: status || (isValid ? "VALID" : "INVALID"),
+      message: message || (isValid ? "Credential is valid, authentic, and active" : "Verification failed"),
+      checks: {
+        signatureValid: Boolean(checks?.signatureValid),
+        hashMatchesFingerprint: Boolean(checks?.hashMatchesFingerprint),
+        issuerAuthorized: Boolean(checks?.issuerAuthorized),
+        notRevoked: Boolean(checks?.notRevoked),
+        notExpired: Boolean(checks?.notExpired),
+        onChainVerified: Boolean(checks?.onChainVerified),
+      },
+      ...(recoveredSigner ? { recoveredSigner } : {}),
+      issuer: credentialPayload ? credentialPayload.issuer : null,
+      credentialId: credentialPayload ? credentialPayload.id : null,
+      verifiedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
    * Complete multi-tier cryptographic and on-chain credential verification.
    */
-  async verifyCredential(credentialPayload) {
+  async verifyCredential(credentialPayload, options = {}) {
     if (!credentialPayload || typeof credentialPayload !== "object") {
-      return {
+      return this._buildVerificationResult({
         isValid: false,
         status: "INVALID_FORMAT",
         message: "Credential payload is missing or invalid",
-        checks: { signature: false, integrity: false, onChain: false },
-      };
+        checks: {
+          signatureValid: false,
+          hashMatchesFingerprint: false,
+          issuerAuthorized: false,
+          notRevoked: false,
+          notExpired: false,
+          onChainVerified: false,
+        },
+      });
     }
 
     // 1. Step 1: Cryptographic ECDSA Signature Verification
@@ -252,48 +291,115 @@ class CredentialService {
     const cryptoResult = cryptoService.verifySignature(credentialPayload, issuerAddress);
 
     if (!cryptoResult.isValid) {
-      return {
+      return this._buildVerificationResult({
         isValid: false,
         status: "INVALID_SIGNATURE",
         message: cryptoResult.reason || "Cryptographic digital signature verification failed",
         checks: {
-          signature: false,
-          integrity: false,
+          signatureValid: false,
+          hashMatchesFingerprint: false,
           issuerAuthorized: false,
-          onChain: false,
+          notRevoked: false,
+          notExpired: false,
+          onChainVerified: false,
         },
         recoveredSigner: cryptoResult.recoveredAddress,
-      };
+        credentialPayload,
+      });
     }
 
     // 2. Step 2: Check expiration date in payload
     if (credentialPayload.expirationDate) {
       const expiry = new Date(credentialPayload.expirationDate);
-      if (Date.now() >= expiry.getTime()) {
-        return {
+      if (!isNaN(expiry.getTime()) && Date.now() >= expiry.getTime()) {
+        return this._buildVerificationResult({
           isValid: false,
           status: "CREDENTIAL_EXPIRED",
           message: "Credential has passed its expiration date",
           checks: {
-            signature: true,
-            integrity: true,
+            signatureValid: true,
+            hashMatchesFingerprint: true,
+            issuerAuthorized: false,
+            notRevoked: false,
             notExpired: false,
-            onChain: false,
+            onChainVerified: false,
           },
-        };
+          credentialPayload,
+        });
       }
     }
 
-    // 3. Step 3: Check Smart Contract State (if configured)
+    // 3. Step 2.5: Check authoritative stored record revocation (for ID-based verification)
+    const storedRecord = options.storedRecord;
+    if (storedRecord && storedRecord.isRevoked) {
+      const hashes = cryptoResult.hashes;
+      const hashMatches = Boolean(
+        storedRecord.credentialHash &&
+        hashes &&
+        storedRecord.credentialHash.toLowerCase() === hashes.keccak256.toLowerCase()
+      );
+      return this._buildVerificationResult({
+        isValid: false,
+        status: "CREDENTIAL_REVOKED",
+        message: storedRecord.revocationReason || "Credential has been revoked",
+        checks: {
+          signatureValid: cryptoResult.isValid,
+          hashMatchesFingerprint: hashMatches,
+          issuerAuthorized: false,
+          notRevoked: false,
+          notExpired: true,
+          onChainVerified: false,
+        },
+        credentialPayload,
+      });
+    }
+
+    // 4. Step 3: Check Smart Contract State (authoritative on-chain registry)
     const hashes = cryptoResult.hashes;
     const onChainResult = await blockchainService.verifyCredential(
       hashes.credentialIdBytes32,
       hashes.keccak256
     );
 
-    const isFullyValid = cryptoResult.isValid && (onChainResult.isValid || onChainResult.statusCode === "BLOCKCHAIN_QUERY_ERROR");
+    // Compute verified checks based on actual independent confirmations
+    const hashMatchesFingerprint = Boolean(
+      onChainResult.isValid ||
+      ["CREDENTIAL_REVOKED", "CREDENTIAL_EXPIRED", "ISSUER_SUSPENDED"].includes(onChainResult.statusCode)
+    );
 
-    // 4. Record audit event
+    const issuerAuthorized = Boolean(onChainResult.isValid);
+
+    const notRevoked = Boolean(
+      !storedRecord?.isRevoked &&
+      (onChainResult.isValid || ["CREDENTIAL_EXPIRED", "ISSUER_SUSPENDED"].includes(onChainResult.statusCode))
+    );
+
+    const payloadExpired = credentialPayload.expirationDate
+      ? (isNaN(new Date(credentialPayload.expirationDate).getTime()) || Date.now() >= new Date(credentialPayload.expirationDate).getTime())
+      : false;
+    const storedExpired = storedRecord?.expirationDate
+      ? (Date.now() >= new Date(storedRecord.expirationDate).getTime())
+      : false;
+
+    const notExpired = Boolean(
+      !payloadExpired &&
+      !storedExpired &&
+      (onChainResult.isValid || ["CREDENTIAL_REVOKED", "ISSUER_SUSPENDED"].includes(onChainResult.statusCode))
+    );
+
+    const onChainVerified = Boolean(onChainResult.isValid);
+
+    // Strict validation: Require all mandatory verification checks to pass
+    const isFullyValid = Boolean(
+      cryptoResult.isValid &&
+      hashMatchesFingerprint &&
+      issuerAuthorized &&
+      notRevoked &&
+      notExpired &&
+      onChainVerified
+    );
+
+    // 5. Record audit event
     await AuditEvent.create({
       eventType: "VERIFICATION_ATTEMPT",
       targetId: credentialPayload.id || hashes.credentialIdBytes32,
@@ -305,22 +411,22 @@ class CredentialService {
       },
     }).catch(() => {});
 
-    return {
+    const checks = {
+      signatureValid: cryptoResult.isValid,
+      hashMatchesFingerprint,
+      issuerAuthorized,
+      notRevoked,
+      notExpired,
+      onChainVerified,
+    };
+
+    return this._buildVerificationResult({
       isValid: isFullyValid,
       status: onChainResult.statusCode || (isFullyValid ? "VALID" : "INVALID"),
-      message: onChainResult.statusMessage || (isFullyValid ? "Credential is valid and cryptographically authentic" : "Verification failed"),
-      checks: {
-        signatureValid: cryptoResult.isValid,
-        hashMatchesFingerprint: true,
-        issuerAuthorized: onChainResult.statusCode !== "ISSUER_SUSPENDED",
-        notRevoked: onChainResult.statusCode !== "CREDENTIAL_REVOKED",
-        notExpired: onChainResult.statusCode !== "CREDENTIAL_EXPIRED",
-        onChainVerified: onChainResult.isValid,
-      },
-      issuer: credentialPayload.issuer,
-      credentialId: credentialPayload.id,
-      verifiedAt: new Date().toISOString(),
-    };
+      message: onChainResult.statusMessage || (isFullyValid ? "Credential is valid, authentic, and active" : "Verification failed"),
+      checks,
+      credentialPayload,
+    });
   }
 
   /**

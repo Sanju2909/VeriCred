@@ -88,18 +88,25 @@ By leveraging **W3C Verifiable Credentials standards**, **asymmetric cryptograph
 
 ---
 
-## ⚙️ Prerequisites & Setup Instructions
+## ⚙️ Quickstart & Setup Instructions
 
-### Prerequisites
-- **Node.js**: `v18+` (Tested on `v24.x`)
-- **npm**: `v9+`
-- **Git**: Installed and configured
-- **MongoDB Atlas**: Free cluster account for off-chain database
+### 🚀 Launching the Platform
 
-### Initial Setup Steps
-1. Clone the repository (or navigate to root directory).
-2. Configure environment variables by copying `.env.example` templates:
-   - `backend/.env.example` -> `backend/.env`
-   - `blockchain/.env.example` -> `blockchain/.env`
-   - `frontend/.env.example` -> `frontend/.env`
+VeriCred provides a **one-command launch** experience:
+
+#### Option A: Standard Launch (Node.js Installed)
+From the repository root:
+```bash
+npm start
+```
+This automatically verifies dependencies, checks the database, deploys smart contracts if needed, and starts the blockchain node, Express backend, and React/Vite frontend.
+
+#### Option B: Fresh Windows PC / Zero-Tooling Launch
+If running on a clean Windows machine without Node.js installed, run:
+```cmd
+start.bat
+```
+`start.bat` will detect missing prerequisites, request Administrator approval via standard Windows UAC, install Node.js LTS silently, and automatically launch the platform.
+
+For full architectural details, pre-configured role credentials, and step-by-step demonstration instructions, see [VERICRED_SETUP_AND_DEMO.md](file:///c:/Users/ragha/OneDrive/Desktop/Decentralized-Credential-Platform/VERICRED_SETUP_AND_DEMO.md).
 

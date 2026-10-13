@@ -1,0 +1,23 @@
+{
+  "name": "vericred-platform",
+  "version": "1.0.0",
+  "description": "Decentralized Digital Identity and Verifiable Credentials Platform Using Blockchain",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/start-all.js",
+    "test": "npm test --prefix blockchain && npm test --prefix backend && npm run build --prefix frontend && npm run test:e2e --prefix frontend",
+    "dist": "node scripts/create-distribution.js"
+  },
+  "keywords": [
+    "verifiable-credentials",
+    "blockchain",
+    "did",
+    "w3c",
+    "ethereum",
+    "react",
+    "express"
+  ],
+  "author": "VeriCred Project Team",
+  "license": "MIT"
+}
+

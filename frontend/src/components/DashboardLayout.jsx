@@ -30,3 +30,4 @@ export function DashboardLayout({ children, title, subtitle, actions }) {
 }
 
 export default DashboardLayout;
+

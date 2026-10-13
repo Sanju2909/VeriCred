@@ -218,10 +218,12 @@ export function VerifyPortal() {
                       <Lock size={16} style={{ color: "var(--primary)" }} />
                       <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>ECDSA secp256k1 Signature Integrity</span>
                     </div>
-                    {verificationResult.checks?.signatureValid ? (
+                    {verificationResult.checks?.signatureValid === true ? (
                       <span className="badge badge-success"><CheckCircle2 size={12} /> Valid Signature</span>
-                    ) : (
+                    ) : verificationResult.checks?.signatureValid === false ? (
                       <span className="badge badge-danger"><XCircle size={12} /> Invalid / Corrupt</span>
+                    ) : (
+                      <span className="badge badge-secondary"><AlertTriangle size={12} /> Not Evaluated</span>
                     )}
                   </div>
 
@@ -230,10 +232,12 @@ export function VerifyPortal() {
                       <Cpu size={16} style={{ color: "var(--primary)" }} />
                       <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>Payload Canonical Hash Match (RFC 8785)</span>
                     </div>
-                    {verificationResult.checks?.hashMatchesFingerprint ? (
+                    {verificationResult.checks?.hashMatchesFingerprint === true ? (
                       <span className="badge badge-success"><CheckCircle2 size={12} /> Tamper-Proof Match</span>
-                    ) : (
+                    ) : verificationResult.checks?.hashMatchesFingerprint === false ? (
                       <span className="badge badge-danger"><XCircle size={12} /> Mismatch</span>
+                    ) : (
+                      <span className="badge badge-secondary"><AlertTriangle size={12} /> Not Evaluated</span>
                     )}
                   </div>
 
@@ -242,10 +246,12 @@ export function VerifyPortal() {
                       <UserCheck size={16} style={{ color: "var(--primary)" }} />
                       <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>Issuer On-Chain Accreditation</span>
                     </div>
-                    {verificationResult.checks?.issuerAuthorized ? (
+                    {verificationResult.checks?.issuerAuthorized === true ? (
                       <span className="badge badge-success"><CheckCircle2 size={12} /> Approved Issuer</span>
-                    ) : (
+                    ) : verificationResult.checks?.issuerAuthorized === false && verificationResult.checks?.signatureValid ? (
                       <span className="badge badge-danger"><ShieldAlert size={12} /> Suspended / Unapproved</span>
+                    ) : (
+                      <span className="badge badge-secondary"><AlertTriangle size={12} /> Not Evaluated</span>
                     )}
                   </div>
 
@@ -254,12 +260,14 @@ export function VerifyPortal() {
                       <Clock size={16} style={{ color: "var(--primary)" }} />
                       <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>Revocation & Expiration Check</span>
                     </div>
-                    {verificationResult.checks?.notRevoked && verificationResult.checks?.notExpired ? (
+                    {verificationResult.checks?.notRevoked === true && verificationResult.checks?.notExpired === true ? (
                       <span className="badge badge-success"><CheckCircle2 size={12} /> Active & Unrevoked</span>
-                    ) : !verificationResult.checks?.notRevoked ? (
+                    ) : verificationResult.checks?.notRevoked === false ? (
                       <span className="badge badge-danger"><XCircle size={12} /> Revoked</span>
-                    ) : (
+                    ) : verificationResult.checks?.notExpired === false ? (
                       <span className="badge badge-expired"><Clock size={12} /> Expired</span>
+                    ) : (
+                      <span className="badge badge-secondary"><AlertTriangle size={12} /> Not Evaluated</span>
                     )}
                   </div>
                 </div>
@@ -270,7 +278,11 @@ export function VerifyPortal() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   <div>
                     <span className="text-muted">Verified Timestamp: </span>
-                    <strong>{new Date(verificationResult.verifiedAt).toLocaleString()}</strong>
+                    <strong>
+                      {verificationResult.verifiedAt && !isNaN(new Date(verificationResult.verifiedAt).getTime())
+                        ? new Date(verificationResult.verifiedAt).toLocaleString()
+                        : "N/A"}
+                    </strong>
                   </div>
                   <div>
                     <span className="text-muted">Smart Contract Status: </span>
@@ -288,3 +300,4 @@ export function VerifyPortal() {
 }
 
 export default VerifyPortal;
+

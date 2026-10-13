@@ -40,3 +40,4 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = "600px" }) 
 }
 
 export default Modal;
+

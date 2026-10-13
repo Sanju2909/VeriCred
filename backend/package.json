@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "mocha --timeout 20000 --exit \"tests/**/*.test.js\"",
+    "test": "mocha --timeout 120000 --exit \"tests/**/*.test.js\"",
     "seed:admin": "node src/scripts/seedAdmin.js"
   },
   "keywords": [

@@ -72,24 +72,34 @@ class CredentialController {
     try {
       let payloadToVerify = req.body;
 
+      let storedRecord = null;
       // If verifying by ID path parameter and body is empty, load stored credential
       if (req.params.id && (!payloadToVerify || Object.keys(payloadToVerify).length === 0)) {
-        const stored = await credentialService.getCredentialById(req.params.id, req.user || { role: "ANONYMOUS" });
+        storedRecord = await credentialService.getCredentialById(req.params.id, req.user || { role: "ANONYMOUS" });
+        const institutionName = (storedRecord.issuerProfileId && storedRecord.issuerProfileId.institutionName)
+          ? storedRecord.issuerProfileId.institutionName
+          : "Academic Institution";
+
         payloadToVerify = {
-          id: stored.credentialId,
-          type: stored.credentialType,
+          "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://schema.org",
+          ],
+          id: storedRecord.credentialId,
+          type: storedRecord.credentialType,
           issuer: {
-            id: stored.issuerDid,
-            ethereumAddress: stored.issuerAddress,
+            id: storedRecord.issuerDid,
+            name: institutionName,
+            ethereumAddress: storedRecord.issuerAddress,
           },
-          issuanceDate: stored.issuanceDate.toISOString(),
-          expirationDate: stored.expirationDate ? stored.expirationDate.toISOString() : null,
-          credentialSubject: stored.claims,
-          proof: stored.proof,
+          issuanceDate: storedRecord.issuanceDate.toISOString(),
+          expirationDate: storedRecord.expirationDate ? storedRecord.expirationDate.toISOString() : null,
+          credentialSubject: storedRecord.claims,
+          proof: storedRecord.proof,
         };
       }
 
-      const result = await credentialService.verifyCredential(payloadToVerify);
+      const result = await credentialService.verifyCredential(payloadToVerify, { storedRecord });
       return ApiResponse.success(res, 200, "Verification completed", result);
     } catch (error) {
       next(error);

@@ -40,3 +40,4 @@ export function Alert({ type = "info", title, message, details, onClose }) {
 }
 
 export default Alert;
+

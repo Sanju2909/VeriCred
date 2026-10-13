@@ -77,3 +77,4 @@ export function StatusBadge({ status, type = "status" }) {
 }
 
 export default StatusBadge;
+

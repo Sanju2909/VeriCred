@@ -53,10 +53,10 @@ export function Login() {
     }
   };
 
-  // Demo autofill helper
-  const handleQuickFill = (demoEmail, demoPassword) => {
+  // Demo email autofill helper (populates role identifier without client-side credentials)
+  const handleEmailFill = (demoEmail) => {
     setEmail(demoEmail);
-    setPassword(demoPassword);
+    setPassword("");
     setError(null);
   };
 
@@ -129,33 +129,36 @@ export function Login() {
             </div>
           </div>
 
-          {/* Demo Quick Fill Box */}
+          {/* Demo Account Autofill Box */}
           <div style={{ marginTop: "20px", backgroundColor: "white", border: "1px dashed var(--slate-300)", borderRadius: "var(--radius-md)", padding: "16px" }}>
             <div style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", color: "var(--slate-400)", marginBottom: "8px", letterSpacing: "0.05em" }}>
-              Academic Demo Quick-Fill
+              Demo Account Autofill
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={() => handleQuickFill("admin@credentialplatform.local", "AdminPass123!")}
+                onClick={() => handleEmailFill("admin@credentialplatform.local")}
               >
-                Admin (Seeded)
+                Admin
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={() => handleQuickFill("registrar@university.edu", "Password123!")}
+                onClick={() => handleEmailFill("registrar@university.edu")}
               >
                 Issuer
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
-                onClick={() => handleQuickFill("alice@student.test", "Password123!")}
+                onClick={() => handleEmailFill("alice@student.test")}
               >
                 Student
               </button>
+            </div>
+            <div style={{ marginTop: "10px", fontSize: "0.75rem", color: "var(--slate-500)", lineHeight: "1.4" }}>
+              Select a role to populate its email identifier. Enter the password configured during environment bootstrap.
             </div>
           </div>
         </div>
@@ -166,3 +169,4 @@ export function Login() {
 }
 
 export default Login;
+

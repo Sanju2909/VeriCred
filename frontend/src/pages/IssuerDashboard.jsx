@@ -401,6 +401,7 @@ export function IssuerDashboard() {
                   type: viewingCredential.credentialType,
                   issuer: {
                     id: viewingCredential.issuerDid,
+                    name: (viewingCredential.issuerProfileId && viewingCredential.issuerProfileId.institutionName) || "State University of Technology",
                     ethereumAddress: viewingCredential.issuerAddress,
                   },
                   issuanceDate: viewingCredential.issuanceDate,
@@ -425,3 +426,4 @@ export function IssuerDashboard() {
 }
 
 export default IssuerDashboard;
+

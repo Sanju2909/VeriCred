@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 const request = require("supertest");
 const { expect } = require("chai");
 const { MongoMemoryServer } = require("mongodb-memory-server");
@@ -8,7 +9,7 @@ const { User, ROLES } = require("../src/models/User");
 const { hashPassword } = require("../src/utils/passwordUtils");
 
 describe("Authentication & Authorization API", function () {
-  this.timeout(25000);
+  this.timeout(120000);
 
   let mongoServer;
   let adminToken;

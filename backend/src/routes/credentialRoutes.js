@@ -12,6 +12,7 @@ const router = express.Router();
  */
 router.post("/verify", credentialController.verifyCredential);
 router.post("/:id/verify", credentialController.verifyCredential);
+router.get("/:id/verify", credentialController.verifyCredential);
 
 /**
  * Authenticated Endpoints

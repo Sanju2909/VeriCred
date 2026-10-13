@@ -53,6 +53,7 @@ logs/
 *.pid
 *.seed
 *.pid.lock
+*.msi
 
 # Database & Storage
 data/
@@ -73,4 +74,12 @@ ehthumbs.db
 *.sublime-workspace
 *.swp
 *.swo
+
+# Test Artifacts & Reports
+playwright-report/
+*/playwright-report/
+test-results/
+*/test-results/
+blob-report/
+*/blob-report/
 
