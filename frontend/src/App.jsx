@@ -16,7 +16,7 @@ import NotFound from "./pages/NotFound";
 export function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/VeriCred">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
